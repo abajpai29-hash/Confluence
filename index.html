@@ -1092,6 +1092,29 @@ const DISCIPLINES = [
   'Immunology', 'Information Theory'
 ];
 
+const DISCIPLINE_PARENT = {
+  'Evolutionary Biology': { parent: 'Biology', emoji: '🧬' },
+  'Thermodynamics': { parent: 'Physics', emoji: '⚡' },
+  'Game Theory': { parent: 'Mathematics', emoji: '🎲' },
+  'Ecology': { parent: 'Environmental Science', emoji: '🌿' },
+  'Neuroscience': { parent: 'Biology', emoji: '🧠' },
+  'Complexity Theory': { parent: 'Systems Science', emoji: '🕸️' },
+  'Anthropology': { parent: 'Social Sciences', emoji: '🏺' },
+  'Military History': { parent: 'History', emoji: '⚔️' },
+  'Philosophy': { parent: 'Humanities', emoji: '💭' },
+  'Linguistics': { parent: 'Social Sciences', emoji: '🗣️' },
+  'Architecture': { parent: 'Design', emoji: '🏛️' },
+  'Music Theory': { parent: 'Arts', emoji: '🎵' },
+  'Mythology': { parent: 'Humanities', emoji: '🌀' },
+  'Chemistry': { parent: 'Science', emoji: '⚗️' },
+  'Geology': { parent: 'Earth Science', emoji: '🪨' },
+  'Astronomy': { parent: 'Physics', emoji: '🔭' },
+  'Epidemiology': { parent: 'Health Science', emoji: '🦠' },
+  'Behavioural Economics': { parent: 'Economics', emoji: '💡' },
+  'Immunology': { parent: 'Biology', emoji: '🛡️' },
+  'Information Theory': { parent: 'Computer Science', emoji: '📡' },
+};
+
 const THINKER_LEVELS = [
   { breadth: 0,  avgDepth: 0, label: 'The Newcomer',         desc: 'Your journey begins.' },
   { breadth: 2,  avgDepth: 1, label: 'The Curious',          desc: 'You\'ve started looking beyond your lane.' },
@@ -1224,11 +1247,12 @@ function getLevelInstruction(level) {
   return `Level 3 — Paradigm Shift: The deepest level. Show how a concept from this discipline completely reframes how they should think about something fundamental in their field. The "I can never unsee this" moment.`;
 }
 
+function hasCardToday() {
+  return state.lastCardDate === new Date().toDateString();
+}
+
 async function generateCard(disciplineOverride) {
-  if (!state.apiKey) {
-    openSettings();
-    return;
-  }
+  if (!state.apiKey) { openSettings(); return; }
 
   const discipline = disciplineOverride || getNextDiscipline();
   const level = getNextLevel(discipline);
@@ -1236,38 +1260,33 @@ async function generateCard(disciplineOverride) {
 
   showView('loading');
 
-  const prompt = `You are Confluence — a polymathic thinking companion. Your mission: build genuine cross-disciplinary thinking in people by showing them unexpected connections.
+  const prompt = `You are Confluence — a polymathic thinking companion. Your mission: show people unexpected connections between disciplines to build cross-disciplinary thinking.
 
-Person profile:
+Person:
 - Name: ${state.name}
 - Field: ${state.field}
-- Cards seen so far: ${state.cardCount}
-- Discipline being explored today: ${discipline}
+- Discipline lens today: ${discipline}
 
 ${levelInstr}
 
-Your task: Generate a deeply personal cross-disciplinary insight connecting ${discipline} to ${state.name}'s world in ${state.field}.
-
 RULES:
-1. The connection must be REAL and INTELLECTUALLY HONEST — not superficial or forced
-2. Tone: a brilliant, warm friend who is widely read — not a professor, not a chatbot
-3. Use ${state.name}'s name naturally once. Make it feel personal.
-4. Write like the most interesting person they've ever met. No jargon. No hedging.
-5. The insight should make them think "I can't unsee this now"
-6. Ground it in something observable and real first, then make the leap
+1. Be SHORT and PUNCHY — this is not an essay, it's a gut-punch insight
+2. Tone: the most interesting person at a dinner party — warm, direct, no jargon
+3. Use ${state.name}'s name once naturally
+4. Every sentence must earn its place. Cut anything vague or generic.
+5. The connection must feel like "I can't unsee this"
 
-Return ONLY valid JSON with NO markdown, NO backticks, NO extra text:
+Return ONLY valid JSON:
 
 {
   "discipline": "${discipline}",
   "level": ${level},
-  "title": "A striking headline (max 10 words, Playfair Display-worthy)",
-  "hook": "The opening line — one powerful sentence that immediately connects ${discipline} to their world in ${state.field}. Personal, surprising, uses their name.",
-  "body": "Three paragraphs. Para 1: explain the concept from ${discipline} in vivid, concrete terms — no jargon, real examples. Para 2: draw the explicit connection to their specific field (${state.field}) — precise, not vague. Para 3: what this means for how they should think or act differently. 300-350 words total. Separate paragraphs with a newline.",
-  "why": "One crisp sentence: why this connection matters specifically for someone in ${state.field}.",
-  "question": "One question they cannot answer quickly. The kind that lingers. Specific to their situation.",
+  "title": "Striking headline, max 8 words",
+  "hook": "One punchy sentence connecting ${discipline} to ${state.field}. Use ${state.name}'s name. Make it land like a surprise.",
+  "body": "Two short paragraphs. Para 1: one vivid concrete example from ${discipline} — no jargon, real and specific. Para 2: the direct connection to ${state.field} and what it means for how ${state.name} should think or act. 150-180 words total. Separate with a newline.",
+  "question": "One question that lingers for days. Specific, not generic.",
   "nextDiscipline": "Name of another discipline to explore next",
-  "nextTeaser": "One sentence teasing what that next exploration reveals"
+  "nextTeaser": "One punchy sentence teasing what that next lens reveals"
 }`;
 
   try {
@@ -1304,6 +1323,7 @@ Return ONLY valid JSON with NO markdown, NO backticks, NO extra text:
 
     // Update progress
     state.cardCount++;
+    state.lastCardDate = new Date().toDateString();
     if (!state.disciplineProgress[discipline]) {
       state.disciplineProgress[discipline] = { level: 0 };
     }
@@ -1332,12 +1352,13 @@ function renderCard(card) {
   const paragraphs = card.body.split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
   const breadth = Object.keys(state.disciplineProgress).length;
   const thinkerLevel = getThinkerLevel();
+  const discMeta = DISCIPLINE_PARENT[card.discipline] || { parent: 'Science', emoji: '🔬' };
 
   document.getElementById('cardContent').innerHTML = `
     <div class="card-meta">
       <div class="card-meta-left">
         <span class="card-number">Connection #${state.cardCount}</span>
-        <span class="lens-pill">${card.discipline}</span>
+        <span class="lens-pill">${discMeta.emoji} ${discMeta.parent} · ${card.discipline}</span>
         <span class="level-pill ${levelInfo.cls}">${levelInfo.label}</span>
       </div>
     </div>
@@ -1350,11 +1371,6 @@ function renderCard(card) {
     </div>
 
     <div class="card-body">${paragraphs}</div>
-
-    <div class="card-why">
-      <div class="card-why-label">Why this matters for you</div>
-      <div class="card-why-text">${card.why}</div>
-    </div>
 
     <div class="card-question">
       <div class="card-question-label">Sit with this</div>
@@ -1411,6 +1427,17 @@ function renderCard(card) {
   renderLegend();
   window.currentCard = card;
   window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Daily limit — after today's card, lock next until tomorrow
+  if (hasCardToday() && state.cardCount > 0) {
+    const nextBtn = document.querySelector('.btn-next-card');
+    if (nextBtn) {
+      nextBtn.innerHTML = '📅 Come back tomorrow';
+      nextBtn.style.background = 'var(--warm)';
+      nextBtn.style.cursor = 'default';
+      nextBtn.onclick = null;
+    }
+  }
 }
 
 // ── LATTICE CHART ──
