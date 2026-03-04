@@ -1279,7 +1279,7 @@ Return ONLY valid JSON with NO markdown, NO backticks, NO extra text:
       },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
-        max_tokens: 1200,
+        max_tokens: 2000,
         temperature: 0.9,
         messages: [{ role: 'user', content: prompt }]
       })
@@ -1289,16 +1289,16 @@ Return ONLY valid JSON with NO markdown, NO backticks, NO extra text:
     if (data.error) throw new Error(data.error.message || 'API error');
 
     const raw = data.choices?.[0]?.message?.content || '';
+    console.log('RAW RESPONSE:', raw);
     let card;
     try {
-      // Try direct parse first
       const cleaned = raw.replace(/```json|```/g, '').trim();
-      // Extract JSON object if wrapped in other text
       const match = cleaned.match(/\{[\s\S]*\}/);
       if (!match) throw new Error('no json found');
       card = JSON.parse(match[0]);
     } catch(e) {
-      throw new Error('Could not parse response. Please try again.');
+      console.error('Parse error:', e, 'Raw:', raw);
+      throw new Error('Parse error — check console for details.');
     }
 
     // Update progress
