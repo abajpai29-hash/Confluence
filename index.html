@@ -1337,8 +1337,7 @@ Return ONLY valid JSON:
   "title": "Striking headline, max 8 words",
   "hook": "One punchy sentence connecting ${discipline} to ${state.field}. Use ${state.name}'s name. Make it land like a surprise.",
   "bullets": ["3 to 4 short bullet points. Each is one crisp sentence. Together they tell the full story: what the concept is, how it works, and what it means for ${state.name} in ${state.field}. Plain language. No jargon. Every word earns its place."],
-  "visual": "A simple text diagram using arrows, symbols, and emojis (2-4 lines max) that visually shows the concept from ${discipline} AND its parallel in ${state.field}. Like: '🌿 Keystone species removed → ecosystem collapses\\n📉 Core product removed → company collapses'. Make it instantly readable.",
-  "question": "One question that makes them stop and think. Specific to their situation, not generic.",
+  "visual": { "leftLabel": "In ${discipline}", "leftConcept": "The concept name (2-4 words)", "leftExample": "One concrete sentence explaining the concept simply", "rightLabel": "In ${state.field}", "rightConcept": "The parallel concept name (2-4 words)", "rightExample": "One sentence showing exactly how it maps to their field" },
   "nextDiscipline": "Name of another discipline to explore next",
   "nextTeaser": "One punchy sentence teasing what that next lens reveals"
 }`;
@@ -1433,11 +1432,6 @@ function renderCard(card) {
       <div class="card-visual-label">See it visually</div>
       <div class="card-visual-content">${visualHTML}</div>
     </div>` : ''}
-
-    <div class="card-question">
-      <div class="card-question-label">Reflect on this</div>
-      <div class="card-question-text">${card.question}</div>
-    </div>
 
     <div class="progress-section">
       <div class="progress-section-title">
@@ -1570,13 +1564,15 @@ function renderLegend() {
     .sort((a, b) => b[1].level - a[1].level)
     .slice(0, 6);
 
-  el.innerHTML = seen.map(([disc, data]) => `
+  el.innerHTML = seen.map(([disc, data]) => {
+    const meta = DISCIPLINE_PARENT[disc] || { parent: disc, emoji: '🔬' };
+    return `
     <div class="legend-item seen">
       <div class="legend-dot"></div>
-      <span class="legend-disc">${disc}</span>
+      <span class="legend-disc">${meta.emoji} ${meta.parent}</span>
       <span class="legend-level">L${data.level}</span>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 // ── THINKER LEVEL ──
