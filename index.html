@@ -1224,13 +1224,20 @@ async function generateCard() {
 
     stopLoadingFragments();
 
-    if (!res.ok) throw new Error(`Worker responded ${res.status}`);
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      throw new Error(`Worker responded ${res.status}: ${errBody?.error || ''}`);
+    }
     const data = await res.json();
 
     let text = (data?.content?.[0]?.text || '').trim();
+    // Strip markdown fences if Claude adds them
     text = text.replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/\s*```$/,'').trim();
+    // Extract JSON object if there's surrounding text
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error(`JSON parse failed — response: ${text.slice(0,200)}`);
 
-    const card = JSON.parse(text);
+    const card = JSON.parse(jsonMatch[0]);
 
     state.todayDate       = today;
     state.todayCard       = card;
@@ -1246,10 +1253,15 @@ async function generateCard() {
 
   } catch(e) {
     stopLoadingFragments();
+    const errMsg = e?.message || String(e);
+    const isRateLimit = errMsg.includes('429');
+    const msg = isRateLimit
+      ? 'Daily limit reached (3/day). Come back tomorrow.'
+      : `Error: ${errMsg}`;
     document.getElementById('generate-area').innerHTML = `
       <div style="display:flex; flex-direction:column; gap:10px;">
-        <div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted);">Something went wrong — the connection got lost in transit.</div>
-        <button class="btn-retry" onclick="generateCard()"><span>✦</span> Try again</button>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted);">${msg}</div>
+        ${isRateLimit ? '' : `<button class="btn-retry" onclick="generateCard()"><span>✦</span> Try again</button>`}
       </div>`;
     console.error(e);
   }
