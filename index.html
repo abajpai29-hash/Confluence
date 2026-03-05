@@ -555,19 +555,6 @@ body::before {
   75%  { opacity: 1; }
   100% { opacity: 0; }
 }
-@keyframes twinkle {
-  0%, 100% { opacity: 0.85; }
-  50%       { opacity: 0.25; }
-}
-@keyframes centerPulse {
-  0%, 100% { opacity: 0.2; }
-  50%       { opacity: 0.5; }
-}
-@keyframes starAppear {
-  0%   { opacity: 0; }
-  50%  { opacity: 1; }
-  100% { opacity: 0.9; }
-}
 
 /* ===== BRIDGE ARC ===== */
 @keyframes arcFlow { from { stroke-dashoffset: 110; } to { stroke-dashoffset: 0; } }
@@ -996,12 +983,9 @@ function renderBridge(bridgeData) {
       <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#c4460a;margin-bottom:8px;">${ll}</div>
       <div style="font-family:'Playfair Display',Georgia,serif;font-size:13px;font-style:italic;color:#1a1614;line-height:1.4;">${lc}</div>
     </div>
-    <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;padding:0 10px;min-width:80px;">
-      ${al ? `<div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#c4460a;text-align:center;margin-bottom:6px;white-space:nowrap;">${al}</div>` : ''}
-      <div style="display:flex;align-items:center;width:100%;">
-        <div style="flex:1;height:1px;background:#c4460a;opacity:0.6;"></div>
-        <div style="color:#c4460a;font-size:14px;opacity:0.8;margin-left:2px;">→</div>
-      </div>
+    <div style="flex:0 0 auto;text-align:center;padding:0 14px;">
+      ${al ? `<div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#c4460a;margin-bottom:6px;white-space:nowrap;">${al}</div>` : ''}
+      <div style="font-size:22px;color:#c4460a;line-height:1;opacity:0.8;">→</div>
     </div>
     <div style="flex:1;min-width:0;border:1px solid #d4c9b0;background:#ede8dc;border-radius:3px;padding:14px 16px;text-align:center;">
       <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#c4460a;margin-bottom:8px;">${rl}</div>
@@ -1447,51 +1431,29 @@ function renderConstellation(newDiscipline) {
   const explored = state.exploredDisciplines || [];
   const name     = (state.profile && state.profile.name) || 'You';
   const n        = explored.length;
+  const initial  = name.charAt(0).toUpperCase();
 
-  const W = 560, H = 300;
+  const W = 520, H = 260;
   const cx = W / 2, cy = H / 2;
 
-  // Decorative background stars — fixed seeded positions
-  const bgStars = [
-    [42,18],[498,22],[18,180],[540,160],[80,290],[480,285],[300,12],[260,295],
-    [140,45],[420,38],[55,110],[510,95],[170,270],[390,260],[310,280],[230,30],
-    [470,210],[90,240],[340,55],[160,200],[440,130],[70,155],[520,240],[200,80],
-    [360,290],[130,130],[490,55],[240,250],[380,20],[100,200],[460,175],[290,45],
-    [150,300],[410,300],[50,60],[530,120],[320,190],[200,160],[440,280],[280,130]
-  ];
-  const bgSvg = bgStars.map(([x,y], i) => {
-    const r = 0.8 + (i % 3) * 0.35;
-    const op = 0.2 + (i % 4) * 0.08;
-    const dur = 2.5 + (i % 5) * 0.7;
-    const delay = (i % 7) * 0.4;
-    return `<circle cx="${x}" cy="${y}" r="${r}" fill="#ffffff" opacity="${op.toFixed(2)}" style="animation:twinkle ${dur}s ease-in-out ${delay}s infinite"/>`;
-  }).join('');
-
-  // Center star (user profile)
-  const centerSvg = `
-    <circle cx="${cx}" cy="${cy}" r="18" fill="#ffd97d" opacity="0.15" style="animation:centerPulse 3s ease-in-out infinite"/>
-    <circle cx="${cx}" cy="${cy}" r="9" fill="#ffd97d" opacity="0.95" stroke="#fff8e7" stroke-width="1.5"/>
-    <circle cx="${cx}" cy="${cy}" r="3" fill="#ffffff" opacity="0.9"/>`;
-
-  // Discipline star positions — golden angle spiral
+  // Node positions — golden angle spiral around center
   const golden = 2.399;
   const positions = {};
   explored.forEach((disc, i) => {
-    const r     = 38 + Math.min(i, 15) * 7;
+    const r = 40 + Math.min(i, 14) * 8;
     const angle = i * golden;
     positions[disc] = {
-      x: Math.max(32, Math.min(W - 32, cx + r * Math.cos(angle))),
-      y: Math.max(18, Math.min(H - 18, cy + r * Math.sin(angle)))
+      x: Math.max(36, Math.min(W - 36, cx + r * Math.cos(angle))),
+      y: Math.max(20, Math.min(H - 20, cy + r * Math.sin(angle)))
     };
   });
 
-  // Edges — each star connects to nearest explored neighbour
+  // Edges — each node connects to its nearest neighbour
   const edgeSet = new Set();
   const edgeSvg = explored.map(disc => {
     const pos = positions[disc];
-    // also connect to center if first few stars
-    const targets = [...explored.filter(d => d !== disc)];
-    const nearest = targets
+    const nearest = explored
+      .filter(d => d !== disc)
       .map(d => ({ d, dist: Math.hypot(positions[d].x - pos.x, positions[d].y - pos.y) }))
       .sort((a, b) => a.dist - b.dist)
       .slice(0, 1);
@@ -1499,55 +1461,55 @@ function renderConstellation(newDiscipline) {
       const key = [disc, d].sort().join('|');
       if (edgeSet.has(key)) return '';
       edgeSet.add(key);
-      return `<line x1="${pos.x.toFixed(1)}" y1="${pos.y.toFixed(1)}" x2="${positions[d].x.toFixed(1)}" y2="${positions[d].y.toFixed(1)}" stroke="#9b8fd4" stroke-width="0.6" opacity="0.35"/>`;
+      return `<line x1="${pos.x.toFixed(1)}" y1="${pos.y.toFixed(1)}" x2="${positions[d].x.toFixed(1)}" y2="${positions[d].y.toFixed(1)}" stroke="#c8a96e" stroke-width="1" opacity="0.45"/>`;
     }).join('');
   }).join('');
 
-  // Lines from each star to center
+  // Lines from each node to center
   const centerLinesSvg = explored.map(disc => {
     const { x, y } = positions[disc];
-    return `<line x1="${x.toFixed(1)}" y1="${y.toFixed(1)}" x2="${cx}" y2="${cy}" stroke="#9b8fd4" stroke-width="0.5" opacity="0.2"/>`;
+    return `<line x1="${x.toFixed(1)}" y1="${y.toFixed(1)}" x2="${cx}" y2="${cy}" stroke="#c8a96e" stroke-width="0.8" opacity="0.25"/>`;
   }).join('');
 
-  // Discipline star nodes + labels
+  // Discipline nodes + labels
   const nodeSvg = explored.map((disc, i) => {
     const { x, y } = positions[disc];
-    const isNew    = disc === newDiscipline;
-    const anim     = isNew
-      ? `style="animation:starAppear 1.2s ease forwards"`
-      : `style="animation:twinkle ${2 + (i % 4) * 0.6}s ease-in-out ${(i % 5) * 0.3}s infinite"`;
-    // Label offset — push away from center
     const dx = x - cx, dy = y - cy;
     const len = Math.hypot(dx, dy) || 1;
-    const lx = Math.max(6, Math.min(W - 6, x + (dx / len) * 10));
-    const ly = Math.max(8, Math.min(H - 4, y + (dy / len) * 10));
-    const anchor = lx < W / 2 ? 'end' : 'start';
+    const lx = Math.max(8, Math.min(W - 8, x + (dx / len) * 13));
+    const ly = Math.max(10, Math.min(H - 6, y + (dy / len) * 13));
+    const anchor = lx < cx ? 'end' : 'start';
     return `
-      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="10" fill="#dce8ff" opacity="0.08" ${anim}/>
-      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="#dce8ff" opacity="0.9" stroke="#ffffff" stroke-width="0.8" ${anim}/>
-      <text x="${lx.toFixed(1)}" y="${(ly + 3).toFixed(1)}" font-family="'JetBrains Mono',monospace" font-size="6.5" fill="#8ab0cc" opacity="0.8" text-anchor="${anchor}">${disc}</text>`;
+      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="11" fill="#c4460a" opacity="0.1"/>
+      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5.5" fill="#c4460a" opacity="0.9" stroke="#f5f0e8" stroke-width="1.5"/>
+      <text x="${lx.toFixed(1)}" y="${(ly + 3).toFixed(1)}" font-family="'JetBrains Mono',monospace" font-size="7" fill="#8a7a6a" text-anchor="${anchor}">${disc}</text>`;
   }).join('');
 
+  // Center node
+  const centerSvg = `
+    <circle cx="${cx}" cy="${cy}" r="16" fill="#c4460a" opacity="0.1"/>
+    <circle cx="${cx}" cy="${cy}" r="9" fill="#c4460a" opacity="0.95" stroke="#f5f0e8" stroke-width="2"/>
+    <text x="${cx}" y="${cy + 4}" font-family="'JetBrains Mono',monospace" font-size="9" fill="#f5f0e8" text-anchor="middle" font-weight="bold">${initial}</text>`;
+
   const progressCopy = n === 0
-    ? 'Your constellation is forming.'
+    ? 'Your knowledge lattice is forming.'
     : n <= 3
-      ? 'Your constellation is forming.'
+      ? 'Your knowledge lattice is forming.'
       : n <= 7
         ? 'The shape is emerging. Keep exploring.'
         : n <= 15
-          ? 'A rare constellation. Most people never get here.'
+          ? 'A rare lattice. Most people never get here.'
           : `${name}, this is what a polymathic mind looks like.`;
 
   const notifyHtml = newDiscipline
-    ? `<div class="constellation-notify">✦ ${newDiscipline} added to your constellation</div>`
+    ? `<div class="constellation-notify">✦ ${newDiscipline} added to your lattice</div>`
     : '';
 
   el.innerHTML = `
     <div class="constellation-wrap">
-      <div class="constellation-title">Your Constellation</div>
-      <div class="constellation-pre-text">Every discipline you explore becomes a star. The connections between them are yours alone.</div>
-      <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:560px;height:auto;display:block;margin:0 auto;border-radius:8px;background:#0d0d1a;">
-        ${bgSvg}
+      <div class="constellation-title">Your Knowledge Lattice</div>
+      <div class="constellation-pre-text">Every discipline you explore adds a node. Watch it grow.</div>
+      <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:520px;height:auto;display:block;margin:0 auto;">
         ${centerLinesSvg}
         ${edgeSvg}
         ${centerSvg}
