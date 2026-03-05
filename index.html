@@ -324,8 +324,8 @@ body::before {
 }
 .card-actions { margin-bottom: 10px; }
 .share-label {
-  font-family: 'JetBrains Mono', monospace; font-size: 9px;
-  letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
   margin-bottom: 10px;
 }
 .share-row { display: flex; gap: 8px; margin-bottom: 12px; }
@@ -982,13 +982,11 @@ function renderBridge(bridgeData) {
     <rect x="392" y="72" width="152" height="62" rx="2" fill="${paper2}" stroke="${border}" stroke-width="1"/>
     <text x="468" y="92" text-anchor="middle" class="br-label">${trunc(rl, 16)}</text>
     <text x="468" y="114" text-anchor="middle" class="br-concept">${trunc(rc, 18)}</text>
-    <!-- Animated arc -->
-    <path d="M 168 103 Q 280 28 392 103" fill="none" stroke="${accent}" stroke-width="2" stroke-dasharray="16 6">
-      <animate attributeName="stroke-dashoffset" from="110" to="0" dur="2.5s" repeatCount="indefinite"/>
-    </path>
+    <!-- Arc -->
+    <path d="M 168 103 Q 280 28 392 103" fill="none" stroke="${accent}" stroke-width="1.5" opacity="0.7"/>
     <!-- Arc endpoints -->
-    <circle cx="168" cy="103" r="3" fill="${accent}" opacity="0.6"/>
-    <circle cx="392" cy="103" r="3" fill="${accent}" opacity="0.6"/>
+    <circle cx="168" cy="103" r="3" fill="${accent}" opacity="0.5"/>
+    <circle cx="392" cy="103" r="3" fill="${accent}" opacity="0.5"/>
     <!-- Arc label -->
     ${al ? `<text x="280" y="50" text-anchor="middle" class="br-arc">${trunc(al, 22)}</text>` : ''}
   </svg>`;
@@ -1095,7 +1093,52 @@ RULES:
 
    Inferences and analogies are welcome — but the source material must be solid.
    If you are not confident in the accuracy of a specific claim, choose a different example. Never fabricate or approximate a fact to make the insight work.
-   A slightly less surprising true insight is infinitely better than a compelling false one.`;
+   A slightly less surprising true insight is infinitely better than a compelling false one.
+
+9. WRITE LIKE A HUMAN, NOT LIKE A REPORT
+
+   Keep sentences short. Vary the rhythm. One idea per sentence.
+   A short sentence hits harder than a long one. Use that.
+   Fragments are fine. A two-word sentence is fine.
+
+   Never write:
+   - "It is worth noting that..."
+   - "This is a fascinating example of..."
+   - "The implications of this are profound..."
+   - "What this reveals is that..."
+   - "In essence..." / "Fundamentally..." / "At its core..."
+   - Long chains of clauses connected by commas and conjunctions
+
+   Write like you're talking to someone smart across a table.
+   Direct. A little urgent. Like you can't believe they haven't seen this yet.
+
+   Avoid em dashes. They are an AI giveaway. Use a period or a new sentence instead.
+   Bad: "This is surprising, and it shows up in your world too."
+   Good: "This is surprising. It shows up in your world too."
+
+   Test: read each sentence aloud. If it sounds like a generated report, rewrite it.
+
+10. PULL THE READER THROUGH
+
+   Every sentence should make the next one necessary.
+   The hook creates a question. Para1 deepens it. Para2 answers it with a twist.
+   The pull quote is the moment they screenshot. Why It Matters is the punch they feel.
+
+   No paragraph should feel skippable.
+   If a sentence doesn't pull forward — cut it.
+
+11. AIM FOR SYSTEMIC CHANGE
+
+   The goal is not "wow, interesting fact."
+   The goal is: after reading this, the person sees their world slightly differently. Permanently.
+
+   They should finish the card and notice something in their day they would have missed before.
+   A meeting, a decision, a pattern. Now seen through a new lens.
+
+   Not entertainment. A new way of seeing.
+
+   Ask yourself: will this person think differently tomorrow because of this card?
+   If the answer is no — go deeper.`;
 
 function buildPrompt(discipline, cluster) {
   const p    = state.profile;
@@ -1242,16 +1285,13 @@ function renderCard(card, discipline) {
       </div>
       ${card.whyItMatters ? `
       <div class="card-why-box">
-        <div class="card-why-label">Why this matters for you</div>
+        <div class="card-why-label">Why this matters for ${state.profile.name || 'you'}</div>
         <div class="card-why-text">${card.whyItMatters}</div>
       </div>` : ''}
       <div class="card-actions">
         <div class="share-label">Share this insight</div>
         <div class="share-row">
-          <button class="share-btn share-linkedin" onclick="shareLinkedIn()">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
-            LinkedIn
-          </button>
+          <button class="share-btn share-linkedin" onclick="shareLinkedIn()">LinkedIn</button>
           <button class="share-btn share-whatsapp" onclick="shareWhatsApp()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.124.557 4.115 1.527 5.843L0 24l6.337-1.496A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.935 0-3.735-.509-5.28-1.393l-.378-.225-3.762.888.954-3.667-.247-.393A9.956 9.956 0 0 1 2 12C2 6.478 6.478 2 12 2s10 4.478 10 10-4.478 10-10 10z"/></svg>
             WhatsApp
@@ -1278,7 +1318,7 @@ function renderCard(card, discipline) {
 // SHARE
 // ============================================================
 function shareLinkedIn() {
-  window.open(`https://www.linkedin.com/shareArticle?mini=true&summary=${encodeURIComponent(getShareText())}`, '_blank');
+  window.open(`https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(getShareText())}`, '_blank');
 }
 
 function addToCalendar() {
@@ -1386,15 +1426,11 @@ function renderConstellation() {
 
     if (isExp) {
       return `
-        <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(r + 5).toFixed(1)}" fill="${color}" opacity="0.12">
-          <animate attributeName="opacity" values="0.07;0.18;0.07" dur="${(2.2 + i * 0.15).toFixed(1)}s" repeatCount="indefinite"/>
-        </circle>
+        <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(r + 5).toFixed(1)}" fill="${color}" opacity="0.12"/>
         <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${color}" opacity="0.9" stroke="#f5f0e8" stroke-width="1.5"/>
         <text x="${lx.toFixed(1)}" y="${(ly + 3).toFixed(1)}" text-anchor="${anchor}" style="font-family:'JetBrains Mono',monospace;font-size:8px;fill:${color};letter-spacing:0.04em;opacity:0.9;">${shortName}</text>`;
     } else {
-      return `
-        <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="#8a7d6b" opacity="0.18"/>
-        <text x="${lx.toFixed(1)}" y="${(ly + 3).toFixed(1)}" text-anchor="${anchor}" style="font-family:'JetBrains Mono',monospace;font-size:8px;fill:#8a7d6b;letter-spacing:0.04em;opacity:0.22;">${shortName}</text>`;
+      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5" fill="#8a7d6b" opacity="0.2"/>`;
     }
   });
 
@@ -1420,8 +1456,11 @@ function renderConstellation() {
     ${centerDot}
   </svg>`;
 
+  const disciplinesExplored = count;
+  const statLine = `<div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.1em;text-align:center;margin-top:12px;opacity:0.7;">${disciplinesExplored} of 108 disciplines explored</div>`;
+
   const preText = count < 3
-    ? `<div class="constellation-pre-text">Each cluster you explore will light up here. Your map of human knowledge — building every day.</div>`
+    ? `<div class="constellation-pre-text">Each cluster you explore lights up. 108 disciplines. 17 clusters. Vast territory ahead.</div>`
     : (label ? `<div class="constellation-label-text">${label}</div>` : '');
 
   el.innerHTML = `
@@ -1429,6 +1468,7 @@ function renderConstellation() {
       <div class="constellation-title">Your Knowledge Map</div>
       ${preText}
       ${svgContent}
+      ${statLine}
     </div>`;
 }
 
