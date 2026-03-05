@@ -1131,7 +1131,11 @@ DISCIPLINE NAMES — use only names from this list:
 
    Test: read each sentence aloud. If it sounds like a generated report, rewrite it.
 
-NO EM DASHES — ever.
+NO EM DASHES — ever. Not a single one. This is a hard rule.
+   Replace every em dash with a period and a new sentence.
+   Bad:  "This is rare — and it shows up in your world too."
+   Good: "This is rare. It shows up in your world too."
+   If you write an em dash, the entire card fails.
    Never use the words: reveals, illuminates, underscores, highlights, showcases.
    If a sentence exceeds 20 words, split it.
    One idea per sentence.
@@ -1193,7 +1197,6 @@ Respond ONLY with valid JSON — no markdown, no code fences, no extra text:
 {
   "title": "Punchy headline, max 8 words, impossible to ignore, NOT the discipline name",
   "hook": "Start with '${p.name}, did you know that [surprising connection]?' Name always first, never at the end. One sentence. Screenshot-worthy. Ends with question mark.",
-  "pullQuote": "The single most striking sentence in the insight. Max 20 words. Makes someone stop scrolling.",
   "para1": "2-3 short sentences. Open with a concrete story, fact, or moment — not about the reader, but about the idea itself. Walk into the discipline through narrative. Story first, concept second.",
   "para2": "2-3 short sentences. Deepen or surprise. One 'you' is fine here to land it in their world — but write mostly as observation and story. End with the insight, not with the reader.",
   "bridgeData": {
@@ -1305,13 +1308,11 @@ function renderCard(card, discipline) {
       <div class="card-lens-badge">${clusterEmoji} ${discipline}</div>
       <div class="card-hook">${card.hook || ''}</div>
       <div class="card-title">${card.title || ''}</div>
-      ${card.pullQuote ? `<div class="card-pull-quote">"${card.pullQuote}"</div>` : ''}
       <div class="card-body">
         ${card.para1 ? `<p class="card-para">${card.para1}</p>` : ''}
         ${card.para2 ? `<p class="card-para">${card.para2}</p>` : ''}
       </div>
       <div class="visual-wrap">
-        <div class="visual-label">The Pattern</div>
         <div class="visual-svg-container">${renderBridge(bd)}</div>
         ${caption ? `<div class="visual-caption">${caption}</div>` : ''}
       </div>
@@ -1321,17 +1322,8 @@ function renderCard(card, discipline) {
         <div class="card-why-text">${card.whyItMatters}</div>
       </div>` : ''}
       <div class="card-actions">
-        <div class="share-label">Share this insight</div>
         <div class="share-row">
-          <button class="share-btn share-linkedin" onclick="shareLinkedIn()">LinkedIn</button>
-          <button class="share-btn share-whatsapp" onclick="shareWhatsApp()">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.124.557 4.115 1.527 5.843L0 24l6.337-1.496A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.935 0-3.735-.509-5.28-1.393l-.378-.225-3.762.888.954-3.667-.247-.393A9.956 9.956 0 0 1 2 12C2 6.478 6.478 2 12 2s10 4.478 10 10-4.478 10-10 10z"/></svg>
-            WhatsApp
-          </button>
-          <button class="share-btn share-copy" onclick="copyCard()">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            Copy
-          </button>
+          <button class="share-btn share-copy" onclick="shareCard()">Share</button>
         </div>
         <div class="card-save-row">
           <button class="btn-action ${alreadySaved ? 'saved' : ''}" id="btn-save" onclick="toggleSave()">
@@ -1349,16 +1341,19 @@ function renderCard(card, discipline) {
 // ============================================================
 // SHARE
 // ============================================================
-function shareLinkedIn() {
-  navigator.clipboard.writeText(getShareText()).catch(() => {});
-  showToast('Text copied — paste it into LinkedIn');
-  setTimeout(() => window.open('https://www.linkedin.com/feed/', '_blank'), 600);
+function shareCard() {
+  const text = getShareText();
+  if (navigator.share) {
+    navigator.share({ text }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
+  }
 }
 
 function addToCalendar() {
-  const text    = encodeURIComponent('Your Confluence lens is ready');
-  const details = encodeURIComponent('https://abajpai29-hash.github.io/Confluence/');
-  window.open(`https://calendar.google.com/calendar/r/eventedit?text=${text}&details=${details}&recur=RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR`, '_blank');
+  const text    = encodeURIComponent('Confluence — your daily lens');
+  const details = encodeURIComponent('Your daily cross-disciplinary insight.\nhttps://abajpai29-hash.github.io/Confluence/');
+  window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&details=${details}&recur=RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR`, '_blank');
 }
 
 // ============================================================
@@ -1407,8 +1402,8 @@ function renderTomorrow(todayDiscipline) {
     <div class="tomorrow-wrap">
       <span class="tomorrow-sunrise">🌅</span>
       <div class="tomorrow-main">${name}, that's your ${todayDiscipline} lens unlocked.</div>
-      <div class="tomorrow-body">Tomorrow we go somewhere completely different.<br>${nextDisc} sees something in your world that today's insight couldn't reach.</div>
-      <div class="tomorrow-sub">See you in the morning.</div>
+      <div class="tomorrow-body">Tomorrow's lens: ${nextDisc}.</div>
+      <div class="tomorrow-sub">Your next lens arrives tomorrow morning.</div>
     </div>`;
 }
 
