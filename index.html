@@ -783,15 +783,15 @@ const CLUSTERS = {
   'Social Sciences':      { emoji:'🏛️', color:'#6B7280', disciplines:['Sociology','Anthropology','Psychology','Social Psychology','Linguistics','Criminology','Demography'] },
   'Economics':            { emoji:'📊',  color:'#14B8A6', disciplines:['Behavioural Economics','Development Economics','Agricultural Economics','Financial Markets','Microfinance','Network Economics','Public Finance'] },
   'Governance & Law':     { emoji:'⚖️', color:'#F97316', disciplines:['Political Philosophy','Constitutional Law','Geopolitics','Military Strategy','Public Policy','International Relations','Public Administration','Diplomacy'] },
-  'History & Philosophy': { emoji:'📜',  color:'#A855F7', disciplines:['Philosophy of Science','Ethics','Epistemology','Ancient Civilisations','Mythology','Logic','Metaphysics','Stoicism'] },
-  'Arts & Design':        { emoji:'🎨',  color:'#EC4899', disciplines:['Music Theory','Architecture','Urban Planning','Film Studies','Narratology','Typography','Acoustics','Semiotics'] },
-  'Engineering':          { emoji:'⚙️', color:'#64748B', disciplines:['Materials Science','Control Theory','Signal Processing','Structural Engineering','Systems Engineering','Biomedical Engineering','Chemical Engineering'] },
-  'Computer Science':     { emoji:'💻',  color:'#0EA5E9', disciplines:['Information Theory','Network Science','Cryptography','Algorithms & Complexity','Human-Computer Interaction','Artificial Intelligence'] },
-  'Business & Strategy':  { emoji:'💡',  color:'#EAB308', disciplines:['Organisational Behaviour','Innovation & Disruption','Consumer Psychology','Entrepreneurship','Supply Chain Theory','Risk Management','Leadership Science'] },
-  'Health & Medicine':    { emoji:'🏥',  color:'#06B6D4', disciplines:['Public Health','Psychiatry','Sports Medicine','Bioethics','Medical Anthropology','Pharmacology','Sleep Science'] },
-  'Sports & Performance': { emoji:'🏃',  color:'#F97316', disciplines:['Sports Psychology','Biomechanics','Kinesiology','Sports Analytics','Coaching Science'] },
+  'History & Philosophy': { emoji:'📜',  color:'#A855F7', disciplines:['Philosophy','Ethics','Philosophy of Science','History','Mythology','Logic','Theology','Stoicism'] },
+  'Arts & Design':        { emoji:'🎨',  color:'#EC4899', disciplines:['Music','Architecture','Urban Planning','Film Studies','English Literature','Typography','Acoustics','Cultural Studies'] },
+  'Engineering':          { emoji:'⚙️', color:'#64748B', disciplines:['Materials Science','Mechanical Engineering','Electrical Engineering','Structural Engineering','Civil Engineering','Biomedical Engineering','Chemical Engineering'] },
+  'Computer Science':     { emoji:'💻',  color:'#0EA5E9', disciplines:['Computer Science','Information Theory','Cryptography','Artificial Intelligence','Human-Computer Interaction','Network Science'] },
+  'Business & Strategy':  { emoji:'💡',  color:'#EAB308', disciplines:['Organisational Behaviour','Business Strategy','Consumer Psychology','Entrepreneurship','Supply Chain Management','Risk Management','Management'] },
+  'Health & Medicine':    { emoji:'🏥',  color:'#06B6D4', disciplines:['Public Health','Psychiatry','Medicine','Bioethics','Medical Anthropology','Pharmacology','Sleep Science'] },
+  'Sports & Performance': { emoji:'🏃',  color:'#F97316', disciplines:['Sports Psychology','Biomechanics','Exercise Science','Sports Analytics','Sports Medicine'] },
   'Eastern & Classical':  { emoji:'☯️', color:'#8B5CF6', disciplines:['Vedic Philosophy','Buddhist Philosophy','Taoism','Ayurveda','Islamic Philosophy','Classical Rhetoric','Confucianism'] },
-  'Complex Systems':      { emoji:'🕸️', color:'#6366F1', disciplines:['Complexity Theory','Cognitive Science','Cybernetics','Futures Studies','Ecology of Mind','Systems Dynamics'] },
+  'Mind & Society':       { emoji:'🕸️', color:'#6366F1', disciplines:['Cognitive Science','Archaeology','Cultural Studies','Demography','Statistics','Public Administration'] },
 };
 
 const ALL_DISCIPLINES = [];
@@ -1409,7 +1409,7 @@ const CLUSTER_COLORS = {
   'Economics':'#14B8A6','Governance & Law':'#F97316','History & Philosophy':'#A855F7',
   'Arts & Design':'#EC4899','Engineering':'#64748B','Computer Science':'#0EA5E9',
   'Business & Strategy':'#EAB308','Health & Medicine':'#06B6D4',
-  'Sports & Performance':'#F97316','Eastern & Classical':'#8B5CF6','Complex Systems':'#6366F1'
+  'Sports & Performance':'#F97316','Eastern & Classical':'#8B5CF6','Mind & Society':'#6366F1'
 };
 
 function renderConstellation() {
@@ -1435,9 +1435,16 @@ function renderConstellation() {
     };
   });
 
+  // Ghost nodes — all clusters shown faintly, even unexplored
+  const ghostSvg = clusterNames.map(name => {
+    const { x, y } = positions[name];
+    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5" fill="none" stroke="#c4460a" stroke-width="1" opacity="0.15"/>`;
+  }).join('');
+
   if (explored.length === 0) {
     el.innerHTML = `<div class="constellation-wrap">
       <div class="constellation-title">Your Knowledge Lattice</div>
+      <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:520px;height:auto;display:block;margin:0 auto;">${ghostSvg}</svg>
       <div class="constellation-pre-text">Every insight adds a thread. Watch it grow.</div>
     </div>`;
     return;
@@ -1473,6 +1480,7 @@ function renderConstellation() {
   }).join('');
 
   const svgContent = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:520px;height:auto;display:block;margin:0 auto;">
+    ${ghostSvg}
     ${edgeSvg}
     ${nodeSvg}
   </svg>`;
