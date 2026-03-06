@@ -1426,7 +1426,7 @@ function renderTomorrow(todayDiscipline) {
   document.getElementById('tomorrow-area').innerHTML = `
     <div class="tomorrow-wrap">
       <span class="tomorrow-sunrise">🌅</span>
-      <div class="tomorrow-main">${name}, that's your ${todayDiscipline} lens unlocked.</div>
+      <div class="tomorrow-main">${name}, that's today's ${todayDiscipline} lens.</div>
       <div class="tomorrow-sub">${new Date().getDay() === 5 ? 'See you Monday with a fresh lens.' : 'See you tomorrow with a fresh lens.'}</div>
     </div>`;
 }
