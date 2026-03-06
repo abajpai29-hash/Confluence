@@ -660,7 +660,7 @@ body::before {
           <div class="chip" data-val="Photography">Photography</div>
         </div>
       </div>
-      <button id="ob-submit" disabled>Enter the Confluence →</button>
+      <button id="ob-submit" disabled>Enter the Confluence</button>
     </div>
   </div>
 </div>
@@ -669,8 +669,10 @@ body::before {
 <div id="screen-app" class="hidden">
   <div class="page-wrap">
     <div class="app-header">
-      <div class="app-logo">✦ Confluence</div>
-      <div class="ob-wordmark-tagline">see through every lens</div>
+      <div>
+        <div class="app-logo">✦ Confluence</div>
+        <div class="ob-wordmark-tagline">see through every lens</div>
+      </div>
     </div>
 
     <div class="weekday-strip" id="weekday-strip"></div>
@@ -701,7 +703,7 @@ body::before {
     <div class="weekend-body">Your next lens arrives Monday morning.</div>
     <div class="weekend-teaser" id="weekend-teaser"></div>
     <div class="weekend-next" id="weekend-next"></div>
-    <button class="btn-calendar" style="max-width:320px; margin:0 auto;" onclick="addToCalendar()">Add to my morning routine →</button>
+    <button class="btn-calendar" style="max-width:320px; margin:0 auto;" onclick="addToCalendar()">Add to my morning routine</button>
   </div>
 </div>
 
@@ -710,8 +712,10 @@ body::before {
   <div class="page-wrap">
     <div class="about-header">
       <button class="back-btn" onclick="showScreen('screen-app')">← Back</button>
-      <div class="app-logo">✦ Confluence</div>
-      <div class="ob-wordmark-tagline">see through every lens</div>
+      <div>
+        <div class="app-logo">✦ Confluence</div>
+        <div class="ob-wordmark-tagline">see through every lens</div>
+      </div>
     </div>
     <div class="about-wrap">
       <div class="about-eyebrow">Why Confluence exists</div>
@@ -799,8 +803,8 @@ const CLUSTERS = {
   'Economics':             { emoji:'📊',  color:'#14B8A6', disciplines:['Behavioural Economics','Development Economics','Agricultural Economics','Financial Markets','Microfinance','Public Finance'] },
   'Governance & Law':      { emoji:'⚖️', color:'#F97316', disciplines:['Political Philosophy','Constitutional Law','Geopolitics','Military Strategy','Public Policy','International Relations','Public Administration','Diplomacy'] },
   'History & Philosophy':  { emoji:'📜',  color:'#A855F7', disciplines:['Philosophy','Ethics','Philosophy of Science','History','Logic','Stoicism','Archaeology'] },
-  'Mythology & Theology':  { emoji:'🔱',  color:'#D97706', disciplines:['Mythology','Theology','Comparative Religion','Symbolism'] },
-  'Arts & Design':         { emoji:'🎨',  color:'#EC4899', disciplines:['Music','Architecture','Urban Planning','Film Studies','English Literature','Typography','Cultural Studies'] },
+  'Religion & Myth':       { emoji:'🔱',  color:'#D97706', disciplines:['Mythology','Theology','Comparative Religion','Folklore'] },
+  'Arts & Design':         { emoji:'🎨',  color:'#EC4899', disciplines:['Music','Architecture','Urban Planning','Film Studies','English Literature','Typography','Cultural Studies','Symbolism'] },
   'Engineering':           { emoji:'⚙️', color:'#64748B', disciplines:['Materials Science','Mechanical Engineering','Electrical Engineering','Structural Engineering','Civil Engineering','Biomedical Engineering','Chemical Engineering'] },
   'Technology & Computing':{ emoji:'💻',  color:'#0EA5E9', disciplines:['Computer Science','Information Theory','Cryptography','Artificial Intelligence','Human-Computer Interaction','Network Science'] },
   'Business & Strategy':   { emoji:'💡',  color:'#EAB308', disciplines:['Organisational Behaviour','Business Strategy','Consumer Psychology','Entrepreneurship','Supply Chain Management','Risk Management','Marketing'] },
@@ -1248,6 +1252,7 @@ async function generateCard() {
     // Strip em dashes from all text fields
     const stripEm = s => typeof s === 'string' ? s.replace(/\s*—\s*/g, ', ').replace(/,\s*,/g, ',') : s;
     ['hook','title','para1','para2','whyItMatters'].forEach(f => { if (card[f]) card[f] = stripEm(card[f]); });
+    if (card.hook) card.hook = card.hook.replace(/[.!,…]+$/, '?');
 
     state.todayDate       = today;
     state.todayCard       = card;
@@ -1310,7 +1315,7 @@ function renderCard(card, discipline) {
       <div class="card-actions">
         <button class="share-btn" onclick="shareWhatsApp()">Share on WhatsApp</button>
         <button class="share-btn" onclick="copyCard()">Copy text</button>
-        <button class="btn-calendar" onclick="addToCalendar()">Add to my morning routine →</button>
+        <button class="btn-calendar" onclick="addToCalendar()">Add to my morning routine</button>
       </div>
     </div>`;
 
