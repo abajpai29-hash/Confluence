@@ -698,9 +698,10 @@ body::before {
 <!-- ===== WEEKEND SCREEN ===== -->
 <div id="screen-weekend" class="hidden">
   <div class="weekend-wrap">
-    <div class="weekend-logo">Confluen<span>ce</span></div>
+    <div class="app-logo">✦ Confluence</div>
+    <div class="ob-wordmark-tagline">see through every lens</div>
     <div class="weekend-main">Rest your eyes on the horizon today.</div>
-    <div class="weekend-body">Come back Monday for your next lens.</div>
+    <div class="weekend-body">See you Monday with a fresh lens.</div>
     <div class="weekend-teaser" id="weekend-teaser"></div>
     <div class="weekend-next" id="weekend-next"></div>
     <button class="btn-calendar" style="max-width:320px; margin:0 auto;" onclick="addToCalendar()">Add to my morning routine</button>
@@ -1426,7 +1427,7 @@ function renderTomorrow(todayDiscipline) {
     <div class="tomorrow-wrap">
       <span class="tomorrow-sunrise">🌅</span>
       <div class="tomorrow-main">${name}, that's your ${todayDiscipline} lens unlocked.</div>
-      <div class="tomorrow-sub">See you tomorrow with a fresh lens.</div>
+      <div class="tomorrow-sub">${new Date().getDay() === 5 ? 'See you Monday with a fresh lens.' : 'See you tomorrow with a fresh lens.'}</div>
     </div>`;
 }
 
