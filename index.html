@@ -1240,7 +1240,7 @@ async function generateCard() {
     if (!jsonMatch) throw new Error(`JSON parse failed: ${text.slice(0,200)}`);
     const card = JSON.parse(jsonMatch[0]);
     // Strip em dashes from all text fields
-    const stripEm = s => typeof s === 'string' ? s.replace(/—/g, '.').replace(/\.\s*\./g, '.') : s;
+    const stripEm = s => typeof s === 'string' ? s.replace(/\s*—\s*/g, ', ').replace(/,\s*,/g, ',') : s;
     ['hook','title','para1','para2','whyItMatters'].forEach(f => { if (card[f]) card[f] = stripEm(card[f]); });
 
     state.todayDate       = today;
