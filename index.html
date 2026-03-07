@@ -856,8 +856,11 @@ function loadState() {
 function getTodayStr() { return new Date().toISOString().split('T')[0]; }
 
 function getTodaysDiscipline() {
-  const dayIndex = Math.floor(Date.now() / 86400000);
-  return ALL_DISCIPLINES[dayIndex % ALL_DISCIPLINES.length];
+  const now = new Date();
+  const todayUTC = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  const epochUTC = Date.UTC(2024, 0, 1);
+  const dayIndex = Math.floor((todayUTC - epochUTC) / 86400000);
+  return ALL_DISCIPLINES[((dayIndex % ALL_DISCIPLINES.length) + ALL_DISCIPLINES.length) % ALL_DISCIPLINES.length];
 }
 
 function showToast(msg) {
@@ -1419,8 +1422,9 @@ function getNextWeekdayDiscipline() {
   let next = new Date(today);
   next.setDate(today.getDate() + 1);
   while (next.getDay() === 0 || next.getDay() === 6) next.setDate(next.getDate() + 1);
-  const epoch = new Date('2024-01-01');
-  const dayIdx = Math.floor((next - epoch) / 86400000);
+  const nextUTC = Date.UTC(next.getFullYear(), next.getMonth(), next.getDate());
+  const epochUTC = Date.UTC(2024, 0, 1);
+  const dayIdx = Math.floor((nextUTC - epochUTC) / 86400000);
   return ALL_DISCIPLINES[((dayIdx % ALL_DISCIPLINES.length) + ALL_DISCIPLINES.length) % ALL_DISCIPLINES.length];
 }
 
