@@ -1637,17 +1637,9 @@ function showWeekendScreen() {
   const name  = state.profile?.name || 'Friend';
   const count = state.cardCount || 0;
 
-  const today = new Date();
-  let monday = new Date(today);
-  while (monday.getDay() !== 1) monday.setDate(monday.getDate() + 1);
-  const epoch  = new Date('2024-01-01');
-  const dayIdx = Math.floor((monday - epoch) / 86400000);
-  const mondayDisc = ALL_DISCIPLINES[((dayIdx % ALL_DISCIPLINES.length) + ALL_DISCIPLINES.length) % ALL_DISCIPLINES.length];
-
   document.getElementById('weekend-teaser').textContent =
     `${name}, you've seen ${count} connection${count !== 1 ? 's' : ''} so far. The lattice grows again on Monday.`;
-  document.getElementById('weekend-next').innerHTML =
-    `Monday: <span>${mondayDisc}</span>`;
+  document.getElementById('weekend-next').innerHTML = '';
 
   showScreen('screen-weekend');
 }
