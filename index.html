@@ -1618,8 +1618,12 @@ function submitOb() {
   };
   state.onboarded = true;
   saveState();
-  showScreen('screen-app');
-  initApp();
+  if (isWeekend()) {
+    showWeekendScreen();
+  } else {
+    showScreen('screen-app');
+    initApp();
+  }
 }
 
 // ============================================================
