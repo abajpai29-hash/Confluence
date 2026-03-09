@@ -934,10 +934,12 @@ function getShareText() {
 }
 
 function shareWhatsApp() {
+  gtag('event', 'share_whatsapp');
   window.open(`https://wa.me/?text=${encodeURIComponent(getShareText())}`, '_blank');
 }
 
 function copyCard() {
+  gtag('event', 'copy_text');
   navigator.clipboard.writeText(getShareText()).then(() => showToast('Copied to clipboard!'));
 }
 
@@ -1336,6 +1338,7 @@ async function generateCard() {
 // RENDER CARD
 // ============================================================
 function renderCard(card, discipline) {
+  gtag('event', 'card_generated', { discipline: discipline, cluster: DISC_TO_CLUSTER[discipline] });
   const bd           = (card.bridgeData && typeof card.bridgeData === 'object') ? card.bridgeData
                      : (card.visualData  && typeof card.visualData  === 'object') ? card.visualData : {};
   const caption      = bd.caption || '';
@@ -1393,6 +1396,7 @@ function shareCard() {
 }
 
 function addToCalendar() {
+  gtag('event', 'add_to_calendar');
   const text    = encodeURIComponent('Confluence: your daily lens');
   const details = encodeURIComponent('Your daily cross-disciplinary insight.\nhttps://abajpai29.github.io/confluence/');
   window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&details=${details}&recur=RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR`, '_blank');
@@ -1632,6 +1636,7 @@ function submitOb() {
   };
   state.onboarded = true;
   saveState();
+  gtag('event', 'onboarding_completed', { life_stage: state.profile.lifeStage, domains: state.profile.domains.join(',') });
   if (isWeekend()) {
     showWeekendScreen();
   } else {
